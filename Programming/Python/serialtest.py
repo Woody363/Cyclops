@@ -15,14 +15,14 @@ print(ser.portstr + '\n')
  #ser.write('deil')
 	
 rv="aAAV?--------"
-ra="aAAC?--------"
+ra="aAAI?--------"
 rp="aAAP?--------"
 r1="aAAB1?-------"
 r2="aAAB2?-------"
 r3="aAAB3?-------"
 
 
-delay=0.3
+delay=0.15
 	
 ser.write(rv.encode('ascii'))		
 time.sleep(delay)		
