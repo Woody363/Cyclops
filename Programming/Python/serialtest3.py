@@ -1,12 +1,36 @@
-##gets data from serial in a basic way. but has no error handling.
+##gets data from serial with multiple trys and error handling
 ##
 
 
 import serial
 import time
 
-
-
+def getdata(iD,mode):
+    status=0
+    values=[0,0,0]
+    time.sleep(delay)
+    #ser.flush()
+    ser.readline() #reads in a line and discards it, incase previous calls are still pending
+    #ser.write(("a" +iD +mode +"?--------")[0:12].encode('ascii'))
+    for x in range(0,5):
+       # print(x)
+        status=2
+        ser.write(("a" +iD +mode +"?--------")[0:12].encode('ascii'))
+        time.sleep(delay)
+        datastr=str(ser.readline())
+        if len(datastr)==19 and datastr[3:5]==iD:
+            status=1
+            try:    
+                values=[float(datastr[5:8])/10,float(datastr[8:11])/10,float(datastr[11:14])/10]
+            except ValueError:
+                status=3
+            #values=[float(datastr[5:8])/10,float(datastr[8:11])/10,float(datastr[11:14])/10]
+            break
+            
+    #print(str(status))
+    
+    return values
+   
 
 ser = serial.Serial(
     port='COM4',\
@@ -17,9 +41,6 @@ ser = serial.Serial(
         timeout=0)
 	
 print(ser.portstr + '\n')	
- #print(str(chr(1212)))
- #ser.open()	
- #ser.write('deil')
 	
 rv="aAAV?--------"
 ra="aAAI?--------"
@@ -30,17 +51,33 @@ r3="aAAB3?-------"
 #codes required to request different information
 
 
-delay=0.15   #current delay in arduino is 0.05
+delay=0.1   #current delay in arduino is 0.05
 
+
+
+for x in range(0,30): #test loop to see how many requests can occur before it breaks
+            
+
+    volts1=getdata("AA","V")
+    
+#    print("bike Volts = "         \
+#          +str(volts1[0]) +" "     \
+#          +str(volts1[1]) +" "      \
+#          +str(volts1[2]))
+    amps1=getdata("AA","I")
+    
+    print("bike Amps = "         \
+        +str(amps1[0]) +" "     \
+        +str(amps1[1]) +" "      \
+        +str(amps1[2])) 
+
+
+#time.sleep(10)
 for x in range(0,3): #test loop to see how many requests can occur before it breaks
             
-    ser.write(rv.encode('ascii'))		
-    time.sleep(delay)
 
-    tempstr=str(ser.readline())
-
-    volts1=[float(tempstr[5:8])/10,float(tempstr[8:11])/10,float(tempstr[11:14])/10]
-          
+    volts1=getdata("AA","V")
+    
     print("bike Volts = "         \
           +str(volts1[0]) +" "     \
           +str(volts1[1]) +" "      \

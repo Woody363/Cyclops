@@ -22,7 +22,7 @@ r2="aAAB2?-------"
 r3="aAAB3?-------"
 
 
-delay=0.15
+delay=0.15  #current delay in arduino is 0.05
 	
 ser.write(rv.encode('ascii'))		
 time.sleep(delay)		
