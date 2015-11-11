@@ -1,10 +1,19 @@
 ##gets data from serial with multiple trys and error handling
-##
+##recieving a different set of data back (now only length 14 without 
+#end line puctuation, not sure what happened...)
 
 
 import serial
 import time
-#import matplotlib
+#import matplotlib.pyplot as plt
+
+#from pylab import *
+
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+
+
 
 ser = serial.Serial(
     port='COM4',\
@@ -27,11 +36,11 @@ def getdata(iD,MiD,mode):
         ser.write(("a" +iD +MiD +mode +"?--------")[0:12].encode('ascii'))
         time.sleep(delay)
         datastr=str(ser.readline())
-        print(str(len(datastr)))
-        if len(datastr)==19 and datastr[3:5]==MiD:
+       #print(str(len(datastr)))
+        if len(datastr)==14 and datastr[1:3]==MiD:
             status=1
             try:    
-                values=[float(datastr[5:8]),float(datastr[8:11]),float(datastr[11:14])]
+                values=[float(datastr[3:6]),float(datastr[6:9]),float(datastr[9:12])]
             except ValueError:
                 status=3
             #values=[float(datastr[5:8])/10,float(datastr[8:11])/10,float(datastr[11:14])/10]
@@ -56,24 +65,47 @@ def getdata(iD,MiD,mode):
 delay=0.1   #current delay in arduino is 0.05
 
 
-
-for x in range(0,15): #lets make some data
+volts1=[]
+amps1=[]
+voltagedata=[0]*30
+for x in range(0,300): #lets make some data
             
-
-    volts1=getdata("AA","AV","V")
     
-    print("bike Volts = "         \
-          +str(volts1[0]) +" "     \
-          +str(volts1[1]) +" "      \
-          +str(volts1[2]))
-    amps1=getdata("AA","AA","I")
+    volts1.append(getdata("AA","AV","V"))
     
-    print("bike Amps = "         \
-        +str(amps1[0]) +" "     \
-        +str(amps1[1]) +" "      \
-        +str(amps1[2])) 
+    
+    print(x%30)
+    voltagedata[x%30]=volts1[x][1]
+    
+    plt.plot(voltagedata)
+    
+    plt.show()
+
+fig, ax = plt.subplots()
+
+x = np.arange(0, 2*np.pi, 0.01)        # x-array
+line, = ax.plot(x, np.sin(x))
+
+def animate(i):
+    line.set_ydata(np.sin(x+i/10.0))  # update the data
+    return line,
+
+#Init only required for blitting to give a clean slate.
+def init():
+    line.set_ydata(np.ma.array(x, mask=True))
+    return line,
+
+ani = animation.FuncAnimation(fig, animate, np.arange(1, 200), init_func=init,
+    interval=500, blit=True)
+plt.show()
 
 
+#-xlabel('time (s)')
+#ylabel('voltage (mV)')
+title('About as simple as it gets, folks')
+grid(True)
+#savefig("test.png")
+show()
 
 
 
